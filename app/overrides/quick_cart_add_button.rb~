@@ -1,0 +1,5 @@
+Deface::Override.new(:virtual_path => "spree/shared/content/_products_all",
+                     :name => "quick_cart_add_button",
+                     :replace_contents => "#product-price-block div.buy-button",
+                     :partial => "spree/shared/quick_cart_add_button",
+                     :disabled => false)
