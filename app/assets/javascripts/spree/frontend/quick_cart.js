@@ -3,9 +3,12 @@ function SpreeQuickCart() {
   var that = this;
 
   this.initializeQuickCartForm = function() {
+     
+
+
     $(".quick-add-to-cart-form").find("form").submit(function() {
       that.order_path = $(this).closest(".quick-add-to-cart-form").find('.order-path').text();
-
+      that.spinner = $(this).closest(".quick-add-to-cart-form").next('.spinner-cart');
       that.submitButton = $(this).find("button");
       that.buttonEnabled(false);
 
@@ -15,7 +18,8 @@ function SpreeQuickCart() {
         data: $(this).serialize(),
 
         success: function(data, textStatus, jqXHR) {
-          that.replaceCartInformation();
+          Spree.fetch_cart();
+          that.showFlashMessage('Item added to the cart successfully.', true);
         },
         error: function(data, textStatus, jqXHR) {
           that.showFlashMessage('There was a problem adding the item to the cart. Please reload the page and try again.', false);
@@ -30,16 +34,22 @@ function SpreeQuickCart() {
 
   this.showFlashMessage = function(message, success) {
     var messageClass;
-    if (success == true){ messageClass = 'success'} else { messageClass = 'error' };
-    $('#default').prepend("<div class='quick-cart-flash " + messageClass + "'>" + message + "</div>");
+    if (success == true){
+      messageClass = 'success'
+    } else {
+      messageClass = 'error' 
+    };
+      
+    $('#default').prepend("<div class='flash " + messageClass + "'>" + message + "</div>");
+    
     timeoutID = window.setTimeout(function(){
-      $('#default').find(".quick-cart-flash.success").remove();
+      $('#default').find(".flash.success").remove();
     }, 3000);
   };
 
   this.replaceCartInformation = function() {
     Spree.ajax({
-      url: that.order_path,
+      url: Spree.routes.cart_link,
       type: "GET",
       cache: false,
       dataType: 'json',
@@ -51,6 +61,7 @@ function SpreeQuickCart() {
       },
       error: function(data, textStatus, jqXHR) {
         that.showFlashMessage('There was a problem adding the item to the cart. Please reload the page and try again.', false);
+        //location.reload();
       }
     });
   };
@@ -58,10 +69,12 @@ function SpreeQuickCart() {
   this.buttonEnabled = function(enabled) {
     if (enabled == false){
       that.submitButton.attr("disabled", "disabled");
+      that.spinner.fadeToggle('fast');
       // that.submitButton.text("...");
     } else {
       that.submitButton.removeAttr("disabled");
       that.submitButton.text("");
+      that.spinner.fadeToggle('fast');
     }
   };
 
